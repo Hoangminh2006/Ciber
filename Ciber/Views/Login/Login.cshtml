@@ -13,7 +13,7 @@
 
         form {
             border: 3px solid #f1f1f1;
-            width: 60%;
+            width: 30%;
             margin: auto;
             margin-top: 10%;
         }
@@ -70,6 +70,12 @@
             <div class="msg">
                 <span asp-validation-for="Password" class="err"></span>
             </div>
+            @if (ViewBag.Error != null)
+            {
+                <div class="msg">
+                    <span class="err">@ViewBag.Error</span>
+                </div>
+            }
             <button type="submit">Login</button>
         </div>
     </form>

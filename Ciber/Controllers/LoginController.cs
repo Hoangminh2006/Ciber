@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Ciber.Controllers
 {
-    [Authorize]
     public class LoginController : Controller
     {
         private readonly RoleManager<IdentityRole> _roleManager;
@@ -39,26 +38,16 @@ namespace Ciber.Controllers
                  input.Username.ToLower() && user.PasswordHash == input.Password);
             if (user != null)
             {
-                var getRols = await _userManager.GetRolesAsync(user);
-                var claims = new List<Claim>() {
-                        new Claim(ClaimTypes.Name, user.UserName),
-                    };
-                foreach (var r in getRols)
-                {
-                    claims.Add(new Claim(ClaimTypes.Role, r));
-                }
-                var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                var principal = new ClaimsPrincipal(identity);
-                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, new AuthenticationProperties()
-                {
-                    IsPersistent = true
-                });
-               
-                return RedirectToAction("Index","Home");
+                await _signInManager.SignInAsync(user, true);
+                return RedirectToAction("ListViewProduct", "Home");
             }
             ViewBag.Error = "Not found User";
             return View("Login");
-
+        }
+        public async Task<IActionResult> Logout()
+        {
+            await _signInManager.SignOutAsync();
+            return RedirectToAction("Login", "Login");
         }
     }
 }

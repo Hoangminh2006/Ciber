@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using CiberCommon.Model;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using SelectList = Ciber.Models.SelectList;
+using Ciber.Manager;
 
 namespace Ciber.Controllers
 {
@@ -19,12 +20,15 @@ namespace Ciber.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly CiberDbContext _ciberDbContext;
+        private readonly IOrderManager _orderManager;
 
-        public HomeController(ILogger<HomeController> logger, CiberDbContext ciberDbContext)
+        public HomeController(ILogger<HomeController> logger, CiberDbContext ciberDbContext, IOrderManager orderManager)
         {
             _logger = logger;
             _ciberDbContext = ciberDbContext;
+            _orderManager = orderManager;
         }
+        [Authorize(Roles ="AdminRole")]
         public IActionResult Index()
         {
             ViewBag.CustomerList = _ciberDbContext.Customers.Select(s => new SelectListItem
@@ -39,44 +43,43 @@ namespace Ciber.Controllers
             }).ToList();
             return View();
         }
+        public IActionResult ListProduct()
+        {
+            return View();
+        }
+        public IActionResult ListViewProduct()
+        {
+            var products = _ciberDbContext.Products.ToList();
+            return View(products);
+        }
+        [Authorize(Roles = "AdminRole")]
+        public IActionResult DeleteProduct(int productId)
+        {
+            var findProduct = _ciberDbContext.Products.FirstOrDefault(s => s.Id == productId);
+            if (findProduct != null)
+            {
+                _ciberDbContext.Remove(findProduct);
+                _ciberDbContext.SaveChanges();
+            }              
+            return RedirectToAction("ListViewProduct","Home");
+        }
         [HttpPost]
         public JsonResult GetEmployeeList()
         {
-            int filterRecord = 0;
             var draw = Request.Form["draw"].FirstOrDefault();
             var sortColumn = Request.Form["columns[" + Request.Form["order[0][column]"].FirstOrDefault() + "][name]"].FirstOrDefault();
             var sortColumnDirection = Request.Form["order[0][dir]"].FirstOrDefault();
             var searchValue = Request.Form["search[value]"].FirstOrDefault();
             int pageSize = Convert.ToInt32(Request.Form["length"].FirstOrDefault() ?? "0");
             int skip = Convert.ToInt32(Request.Form["start"].FirstOrDefault() ?? "0");
-            var data = _ciberDbContext.Orders.Include(s => s.Product).ThenInclude(s => s.Category).Include(s => s.Customer).ToList();
-            var result = new List<OrderListDto>();
-            foreach (var item in data)
-            {
-                result.Add(new OrderListDto
-                {
-                    Amount = item.Amount,
-                    CategoryName = item.Product.Category.Name,
-                    CustomerName = item.Customer.Name,
-                    OrderDate = item.OrderDate,
-                    ProductName = item.Product.Name
-                });
-            }
-            if (!string.IsNullOrEmpty(searchValue))
-            {
-                result = result.Where(x => x.CategoryName.ToLower().Contains(searchValue.ToLower())
-                         || x.CustomerName.ToLower().Contains(searchValue.ToLower())
-                         || x.ProductName.ToLower().Contains(searchValue.ToLower())).ToList();
-            }
-            filterRecord = result.Count();
-            if (!string.IsNullOrEmpty(sortColumn) && !string.IsNullOrEmpty(sortColumnDirection)) result = result.AsQueryable().OrderBy(sortColumn + " " + sortColumnDirection).ToList();
-            var empList = result.Skip(skip).Take(pageSize).ToList();
+            int filterRecord;
+            var data = _orderManager.GetListOrder(skip, pageSize, sortColumn + " " + sortColumnDirection, searchValue,out filterRecord);
             var returnObj = new
             {
                 draw = draw,
                 recordsTotal = filterRecord,
                 recordsFiltered = filterRecord,
-                data = empList
+                data = data
             };
             return Json(returnObj);
         }
@@ -119,8 +122,7 @@ namespace Ciber.Controllers
             _ciberDbContext.Orders.Add(order);
             _ciberDbContext.SaveChanges();
             return Json(new { message = "Save successfully", success = true }); 
-        }
-
+        }     
         public IActionResult Privacy()
         {
             return View();

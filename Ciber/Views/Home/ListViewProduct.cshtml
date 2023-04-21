@@ -1,0 +1,29 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+@model List<CiberCommon.Model.Product> 
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Name</th>
+            <th scope="col">Price</th>
+            <th scope="col">Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var item in Model)
+        {
+            <tr>
+                <td>@item.Id</td>
+                <td>@item.Name</td>
+                <td>@item.Price</td>
+                @if (this.User.IsInRole("AdminRole"))
+                {
+                    <td><a href="@Url.Action("DeleteProduct","Home",new {productId = item.Id})">Delete</a></td>
+                }
+            
+            </tr>
+        }
+    </tbody>
+</table>

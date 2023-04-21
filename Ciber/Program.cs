@@ -7,9 +7,8 @@ using System;
 using NLog;
 using NLog.Web;
 using Ciber.Models;
+using Ciber.Manager;
 
-var logger = NLog.LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
-logger.Debug("init main");
 var builder = WebApplication.CreateBuilder(args);
 builder.Logging.ClearProviders();
 builder.Logging.SetMinimumLevel
@@ -22,7 +21,7 @@ builder.Services.AddSingleton<ILog, LogNLog>();
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 var connectionString = builder.Configuration.GetConnectionString("Default");
-builder.Services.AddDbContext<Ciber.EntityFramework.EntityFramework.CiberDbContext>(x => x.UseSqlServer(connectionString));
+builder.Services.AddDbContext<CiberDbContext>(x => x.UseSqlServer(connectionString));
 
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
         .AddEntityFrameworkStores<CiberDbContext>()
@@ -36,6 +35,11 @@ builder.Services.AddAuthorization(options =>
             authBuilder.RequireRole("AdminRole");
         });
 
+    options.AddPolicy("UserRole",
+        authBuilder =>
+        {
+            authBuilder.RequireRole("UserRole");
+        });
 });
 builder.Services.Configure<CookiePolicyOptions>(options =>
 {
@@ -43,6 +47,7 @@ builder.Services.Configure<CookiePolicyOptions>(options =>
     options.MinimumSameSitePolicy = SameSiteMode.None;
 });
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(x=>x.LoginPath="/Login/Login");
+builder.Services.AddScoped<IOrderManager, OrderManager>();
 var app = builder.Build();
 
 var loggerFactory = app.Services.GetService<ILoggerFactory>();
