@@ -8,8 +8,7 @@ namespace Ciber.EntityFramework.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            var sqlFile = Path.Combine("queryInsertData.Sql");
-            migrationBuilder.Sql(File.ReadAllText(sqlFile));
+            
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

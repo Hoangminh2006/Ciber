@@ -70,7 +70,7 @@ namespace Ciber.EntityFramework.Migrations
                     ProductId = table.Column<int>(type: "int", nullable: false),
                     Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     OrderDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    OrderName = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    OrderName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                 },
                 constraints: table =>
                 {

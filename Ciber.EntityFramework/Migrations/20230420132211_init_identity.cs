@@ -192,6 +192,8 @@ namespace Ciber.EntityFramework.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+            var sqlFile = Path.Combine("queryInsertData.Sql");
+            migrationBuilder.Sql(File.ReadAllText(sqlFile));
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
