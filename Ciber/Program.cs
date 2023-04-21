@@ -4,9 +4,21 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
+using NLog;
+using NLog.Web;
+using Ciber.Models;
 
+var logger = NLog.LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
+logger.Debug("init main");
 var builder = WebApplication.CreateBuilder(args);
+builder.Logging.ClearProviders();
+builder.Logging.SetMinimumLevel
+                (Microsoft.Extensions.Logging.LogLevel.Error);
+builder.Host.UseNLog();
 
+//other classes that need the logger 
+builder.Services.AddTransient<GenericHelper>();
+builder.Services.AddSingleton<ILog, LogNLog>();
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 var connectionString = builder.Configuration.GetConnectionString("Default");
@@ -21,7 +33,7 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("AdminRole",
         authBuilder =>
         {
-            authBuilder.RequireClaim("AdminRole");
+            authBuilder.RequireRole("AdminRole");
         });
 
 });
@@ -30,10 +42,10 @@ builder.Services.Configure<CookiePolicyOptions>(options =>
     options.CheckConsentNeeded = context => true;
     options.MinimumSameSitePolicy = SameSiteMode.None;
 });
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(x=>x.LoginPath="/Login/Login");
 var app = builder.Build();
+
 var loggerFactory = app.Services.GetService<ILoggerFactory>();
-loggerFactory.AddFile(builder.Configuration["Logging:LogFilePath"].ToString());
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {

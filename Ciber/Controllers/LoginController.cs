@@ -35,7 +35,6 @@ namespace Ciber.Controllers
         public async Task<IActionResult> Login(LoginModel input)
         {
             var getall = _userManager.Users;
-
             var user = await _userManager.Users.FirstOrDefaultAsync(user => user.UserName.ToLower() ==
                  input.Username.ToLower() && user.PasswordHash == input.Password);
             if (user != null)
