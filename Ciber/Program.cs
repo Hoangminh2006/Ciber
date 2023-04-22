@@ -48,6 +48,7 @@ builder.Services.Configure<CookiePolicyOptions>(options =>
 });
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(x=>x.LoginPath="/Login/Login");
 builder.Services.AddScoped<IOrderManager, OrderManager>();
+builder.Services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
 var app = builder.Build();
 
 var loggerFactory = app.Services.GetService<ILoggerFactory>();

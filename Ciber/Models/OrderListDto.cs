@@ -1,4 +1,6 @@
-﻿namespace Ciber.Models
+﻿using Microsoft.Build.Framework;
+
+namespace Ciber.Models
 {
     public class OrderListDto
     {
@@ -13,7 +15,9 @@
     {
         public int ProductId { get; set; }
         public int CustomerId { get; set; }
+        [Required]
         public string OrderName { get; set; }
+        [Required]
         public decimal Amount { get; set; }
         public DateTime OrderDate { get; set; }
     }

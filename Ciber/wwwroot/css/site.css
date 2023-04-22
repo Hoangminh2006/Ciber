@@ -16,3 +16,111 @@ html {
 body {
   margin-bottom: 60px;
 }
+.select2-container {
+    z-index: 100000;
+}
+
+.toast {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    z-index: 100000;
+}
+
+.dataTables_length, .dataTables_wrapper {
+    font-size: 1.6rem;
+}
+
+    .dataTables_length select, .dataTables_wrapper select, .dataTables_length input, .dataTables_wrapper input {
+        background-color: #f9f9f9;
+        border: 1px solid #999;
+        border-radius: 4px;
+        height: 3rem;
+        line-height: 2;
+        font-size: 1.8rem;
+        color: #333;
+    }
+
+    .dataTables_length .dataTables_length, .dataTables_wrapper .dataTables_length, .dataTables_length .dataTables_filter, .dataTables_wrapper .dataTables_filter {
+        margin-top: 30px;
+        margin-right: 20px;
+        margin-bottom: 10px;
+        display: inline-flex;
+        float: right;
+    }
+
+    .dataTables_length .dataTables_filter, .dataTables_wrapper .dataTables_filter {
+        float: left;
+    }
+
+.paginate_button {
+    min-width: 4rem;
+    display: inline-block;
+    text-align: center;
+    padding: 1rem 1.6rem;
+    margin-top: -1rem;
+    border: 2px solid lightblue;
+}
+
+    .paginate_button:not(.previous) {
+        border-left: none;
+    }
+
+    .paginate_button.previous {
+        border-radius: 8px 0 0 8px;
+        min-width: 7rem;
+    }
+
+    .paginate_button.next {
+        border-radius: 0 8px 8px 0;
+        min-width: 7rem;
+    }
+
+    .paginate_button:hover {
+        cursor: pointer;
+        background-color: #eee;
+        text-decoration: none;
+    }
+
+table.dataTable thead .sort-icon {
+    display: inline-block;
+    padding-left: 5px;
+    width: 16px;
+    height: 16px;
+}
+
+table.dataTable thead .sorting {
+    background: url('../images/sort_both.png') no-repeat center right;
+}
+
+table.dataTable thead .sorting_asc {
+    background: url('../images/sort_asc.png') no-repeat center right;
+}
+
+table.dataTable thead .sorting_desc {
+    background: url('../images/sort_desc.png') no-repeat center right;
+}
+
+table.dataTable thead .sorting_asc_disabled {
+    background: url('../images/sort_asc_disabled.png') no-repeat center right;
+}
+
+table.dataTable thead .sorting_desc_disabled {
+    background: url('../images/sort_desc_disabled.png') no-repeat center right;
+}
+
+table.dataTable thead .sorting::before,
+table.dataTable thead .sorting_asc::before,
+table.dataTable thead .sorting_desc::before,
+table.dataTable thead .sorting_asc_disabled::before,
+table.dataTable thead .sorting_desc_disabled::before {
+    content: "";
+}
+
+table.dataTable thead .sorting::after,
+table.dataTable thead .sorting_asc::after,
+table.dataTable thead .sorting_desc::after,
+table.dataTable thead .sorting_asc_disabled::after,
+table.dataTable thead .sorting_desc_disabled::after {
+    content: "";
+}

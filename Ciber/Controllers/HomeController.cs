@@ -12,6 +12,9 @@ using CiberCommon.Model;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using SelectList = Ciber.Models.SelectList;
 using Ciber.Manager;
+using CiberCommon.Dto;
+using Abp.ObjectMapping;
+using AutoMapper;
 
 namespace Ciber.Controllers
 {
@@ -21,12 +24,15 @@ namespace Ciber.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly CiberDbContext _ciberDbContext;
         private readonly IOrderManager _orderManager;
-
-        public HomeController(ILogger<HomeController> logger, CiberDbContext ciberDbContext, IOrderManager orderManager)
+        private readonly IMapper _mapper;
+        public HomeController(ILogger<HomeController> logger, 
+            CiberDbContext ciberDbContext, 
+            IOrderManager orderManager, IMapper mapper)
         {
             _logger = logger;
             _ciberDbContext = ciberDbContext;
             _orderManager = orderManager;
+            _mapper = mapper;
         }
         [Authorize(Roles ="AdminRole")]
         public IActionResult Index()
@@ -43,14 +49,11 @@ namespace Ciber.Controllers
             }).ToList();
             return View();
         }
-        public IActionResult ListProduct()
-        {
-            return View();
-        }
         public IActionResult ListViewProduct()
         {
             var products = _ciberDbContext.Products.ToList();
-            return View(products);
+            var result = _mapper.Map<List<ProductDto>>(products);
+            return View(result); 
         }
         [Authorize(Roles = "AdminRole")]
         public IActionResult DeleteProduct(int productId)
@@ -105,23 +108,35 @@ namespace Ciber.Controllers
         }
         [HttpPost]
         public JsonResult InsertData(OrderInsertInput input)
-        { 
-            var findProduct = _ciberDbContext.Products.FirstOrDefault(s => s.Id == input.ProductId);
-            var checkAmount = input.Amount <= findProduct.Quantity;
-            if (!checkAmount)
-                return Json(new { message = "Amount larger than Quantity",success = false });
-            var order = new Order
+        {
+            try
             {
-                Amount = input.Amount,
-                CustomerId = input.CustomerId,
-                ProductId = input.ProductId,
-                OrderDate = input.OrderDate,
-                OrderName = input.OrderName,
-            };
-            findProduct.Quantity -= input.Amount;
-            _ciberDbContext.Orders.Add(order);
-            _ciberDbContext.SaveChanges();
-            return Json(new { message = "Save successfully", success = true }); 
+                var findProduct = _ciberDbContext.Products.FirstOrDefault(s => s.Id == input.ProductId);
+                if (findProduct != null)
+                {
+                    var checkAmount = input.Amount <= findProduct.Quantity;
+                    if (!checkAmount)
+                        return Json(new { message = "Amount larger than Quantity", success = false });
+                    var order = new Order
+                    {
+                        Amount = input.Amount,
+                        CustomerId = input.CustomerId,
+                        ProductId = input.ProductId,
+                        OrderDate = input.OrderDate,
+                        OrderName = input.OrderName,
+                    };
+                    findProduct.Quantity -= input.Amount;
+                    _ciberDbContext.Orders.Add(order);
+                    _ciberDbContext.SaveChanges();
+                    return Json(new { message = "Save successfully", success = true });
+                }
+                return Json(new { message = "Not found Product", success = false });
+
+            }
+            catch(Exception e)
+            {
+                return Json(new { message = e.Message, success = false });
+            }         
         }     
         public IActionResult Privacy()
         {
